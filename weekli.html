@@ -1,0 +1,163 @@
+
+<h2 class="sr-only">A minimal daily grind tracker built for someone who breaks systems — no streaks, no rigid schedules, just nightly accountability.</h2>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.wrap { padding: 1.5rem 0; max-width: 620px; }
+.day-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.date-big { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1.5rem; }
+.section-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.task-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; user-select: none; }
+.task-row:hover { border-color: var(--color-border-secondary); }
+.task-row.done { background: var(--color-background-success); border-color: var(--color-border-success); }
+.check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--color-border-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+.task-row.done .check { background: var(--color-text-success); border-color: var(--color-text-success); }
+.checkmark { width: 10px; height: 10px; display: none; }
+.task-row.done .checkmark { display: block; }
+.check-svg { fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.task-label { font-size: 15px; color: var(--color-text-primary); flex: 1; }
+.task-row.done .task-label { color: var(--color-text-success); }
+.count-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); margin-bottom: 8px; }
+.count-label { font-size: 15px; color: var(--color-text-primary); flex: 1; }
+.counter { display: flex; align-items: center; gap: 8px; }
+.cnt-btn { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.cnt-btn:hover { background: var(--color-background-secondary); }
+.cnt-val { font-size: 16px; font-weight: 500; min-width: 24px; text-align: center; color: var(--color-text-primary); }
+.cnt-val.target-met { color: var(--color-text-success); }
+.divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1.25rem 0; }
+.floor-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 12px; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
+.floor-badge span { color: var(--color-text-primary); font-weight: 500; }
+.status-bar { padding: 14px 16px; border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); margin-bottom: 1.5rem; }
+.status-text { font-size: 15px; color: var(--color-text-primary); line-height: 1.5; }
+.progress-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.prog-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-border-secondary); }
+.prog-dot.lit { background: var(--color-text-success); }
+.reset-link { font-size: 13px; color: var(--color-text-secondary); cursor: pointer; text-decoration: underline; margin-top: 1rem; display: inline-block; }
+.reset-link:hover { color: var(--color-text-primary); }
+.nuke-bar { margin-top: 1.5rem; padding: 12px 14px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-primary); }
+.nuke-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; }
+.nuke-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.nuke-text strong { color: var(--color-text-primary); font-weight: 500; }
+</style>
+
+<div class="wrap">
+  <div class="day-label" id="day-label">today</div>
+  <div class="date-big" id="date-big">—</div>
+
+  <div class="floor-badge">Floor rule: <span>1 problem + 1 video = day not wasted</span></div>
+
+  <div class="section-title">DSA — striver sheet</div>
+  <div class="count-row">
+    <div class="count-label">Problems solved</div>
+    <div class="counter">
+      <button class="cnt-btn" onclick="change('dsa',-1)">−</button>
+      <div class="cnt-val" id="dsa-val">0</div>
+      <button class="cnt-btn" onclick="change('dsa',1)">+</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title">Dev — kirat's course</div>
+  <div class="count-row">
+    <div class="count-label">Videos watched</div>
+    <div class="counter">
+      <button class="cnt-btn" onclick="change('dev',-1)">−</button>
+      <div class="cnt-val" id="dev-val">0</div>
+      <button class="cnt-btn" onclick="change('dev',1)">+</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title">Other</div>
+  <div class="task-row" id="task-contest" onclick="toggle('contest')">
+    <div class="check"><svg class="checkmark" viewBox="0 0 10 10"><polyline class="check-svg" points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+    <div class="task-label">Attempted a contest this week</div>
+  </div>
+  <div class="task-row" id="task-meals" onclick="toggle('meals')">
+    <div class="check"><svg class="checkmark" viewBox="0 0 10 10"><polyline class="check-svg" points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+    <div class="task-label">Ate & didn't skip sleep</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="status-bar">
+    <div class="status-text" id="status-text">Log what you did tonight. No judgment.</div>
+    <div class="progress-row" id="progress-dots"></div>
+  </div>
+
+  <div class="nuke-bar">
+    <div class="nuke-title">feeling like nuking everything?</div>
+    <div class="nuke-text">Write the new system idea down. <strong>Come back to it in 2 weeks.</strong> If it still seems good then, switch. Until then — just add one more entry below this one.</div>
+  </div>
+
+  <div style="margin-top: 1.5rem;">
+    <span class="reset-link" onclick="newDay()">→ start tomorrow's entry</span>
+  </div>
+</div>
+
+<script>
+const state = { dsa: 0, dev: 0, contest: false, meals: false, history: [] };
+
+function getDateStr() {
+  return new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function change(key, delta) {
+  state[key] = Math.max(0, state[key] + delta);
+  document.getElementById(key + '-val').textContent = state[key];
+  const targets = { dsa: 4, dev: 3 };
+  const el = document.getElementById(key + '-val');
+  el.classList.toggle('target-met', state[key] >= targets[key]);
+  updateStatus();
+}
+
+function toggle(key) {
+  state[key] = !state[key];
+  const row = document.getElementById('task-' + key);
+  row.classList.toggle('done', state[key]);
+  updateStatus();
+}
+
+function updateStatus() {
+  const dsa = state.dsa, dev = state.dev;
+  let msg = '';
+  const floor = dsa >= 1 && dev >= 1;
+  const good = dsa >= 4 && dev >= 3;
+  if (good) msg = 'Full target hit. Go sleep.';
+  else if (floor) msg = 'Floor cleared. Day not wasted. Push more if you can.';
+  else if (dsa > 0 || dev > 0) msg = 'Something done. Keep going — floor is 1 problem + 1 video.';
+  else msg = 'Log what you did tonight. No judgment.';
+  document.getElementById('status-text').textContent = msg;
+  renderDots();
+}
+
+function renderDots() {
+  const container = document.getElementById('progress-dots');
+  const today = { dsa: state.dsa, dev: state.dev };
+  const allDays = [...state.history, today];
+  container.innerHTML = allDays.slice(-14).map(d => {
+    const lit = d.dsa >= 1 && d.dev >= 1;
+    return `<div class="prog-dot ${lit ? 'lit' : ''}"></div>`;
+  }).join('');
+}
+
+function newDay() {
+  state.history.push({ dsa: state.dsa, dev: state.dev });
+  state.dsa = 0; state.dev = 0; state.contest = false; state.meals = false;
+  document.getElementById('dsa-val').textContent = '0';
+  document.getElementById('dev-val').textContent = '0';
+  document.getElementById('dsa-val').classList.remove('target-met');
+  document.getElementById('dev-val').classList.remove('target-met');
+  document.getElementById('task-contest').classList.remove('done');
+  document.getElementById('task-meals').classList.remove('done');
+  document.getElementById('status-text').textContent = 'Log what you did tonight. No judgment.';
+  renderDots();
+}
+
+document.getElementById('date-big').textContent = getDateStr();
+document.getElementById('day-label').textContent = 'today';
+renderDots();
+</script>
